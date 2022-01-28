@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.13)
 project(TerminalCommandPrintf)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -26,11 +26,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 include_directories(src)
 
-add_library(terminalcommand SHARED
-        src/command_printf.cpp
-        src/limited_queue.cpp
-        )
-
 
 add_subdirectory(demo)
-add_subdirectory(test)
+#add_subdirectory(test)
