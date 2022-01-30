@@ -4,11 +4,13 @@
 
 ## 说明
 
-获取该组件
+下载
 
 ```shell
 git clone https://github.com/planetPocket/TerminalCommandPrintf
 ```
+
+![terminalCommandDemo.gif](https://github.com/planetPocket/TerminalCommandPrintf/blob/main/resources/terminalCommandDemo.gif)
 
 终端页面组成
 
