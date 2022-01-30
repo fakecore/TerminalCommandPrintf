@@ -1,12 +1,8 @@
 # TerminalCommandPrintf
 
-------
-
 又快又好用的命令行交互工具,支持上内容输出,下命令交互形式.
 
 ## 说明
-
-------
 
 获取该组件
 
@@ -38,8 +34,6 @@ git clone https://github.com/planetPocket/TerminalCommandPrintf
 
 ## 使用教程
 
-------
-
 ```c++
 #include "command_printf.h"
 void DemoCallback(int funcNo){
@@ -61,9 +55,7 @@ int main()
 
 ```
 
-TODO
-
-------
+## TODO
 
 - [x] 命令行功能解析
 - [ ] 支持写文件
