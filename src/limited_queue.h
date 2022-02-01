@@ -21,5 +21,5 @@ public:
 
 private:
     std::list<std::string> m_data;
-    int32_t m_limitedSize = 32;
+    uint32_t m_limitedSize = 32;
 };

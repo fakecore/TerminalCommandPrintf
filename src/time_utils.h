@@ -5,7 +5,7 @@
 #pragma once
 
 
-class Time {
+class TimeUtils {
 
 
 };

@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include <thread>
 #include <vector>
 #include <functional>
 #include "limited_queue.h"
@@ -17,18 +18,20 @@
 #define ACTION_MODE 2
 #define EXIT_MODE 2
 
-struct FunctionRecord{
+struct FunctionRecord
+{
     int serialNo;
     std::string functionName;
 };
-struct CommandInput{
-    CommandInput(){
+struct CommandInput
+{
+    CommandInput()
+    {
         mode = INIT_MODE;
         functionNo = 0;
     }
     int mode;
-    int functionNo;//-1 return 0 do nothing
-
+    int functionNo; //-1 return 0 do nothing
 };
 
 /*
@@ -48,7 +51,8 @@ struct CommandInput{
  * prev (h) next(l)         32
  *
  */
-class CommandPrintf {
+class CommandPrintf
+{
 public:
     CommandPrintf();
 
@@ -90,12 +94,23 @@ public:
 
     void clearScreen();
 
-    void setFunctionCallback(std::function<void(int)> f);
+    void setFunctionCallback(std::function<void(int, CommandPrintf *)> f);
 
-    void pushBizData(std::string str);
+    // void pushBizData(std::string str);
+
+    template <typename... Args>
+    void pushBizData(const char *fmt, Args... args)
+    {
+        char buf[1024] = {0};
+        sprintf(buf, fmt, args...);
+        m_contentArea.pushData(buf);
+    }
+
+    bool matchNumber(std::string str,CommandInput &commandInput);
+    bool matchCommand(std::string str,CommandInput &commandInput);
+
 private:
-
-//    std::map<int32_t , std::string> m_funcMap;
+    //    std::map<int32_t , std::string> m_funcMap;
     // sorted array
     std::vector<FunctionRecord> m_funcList;
 
@@ -104,8 +119,11 @@ private:
 
     int32_t m_pageSize;
 
-    std::function<void(int)> m_funcCallback;
+    std::function<void(int, CommandPrintf *)> m_funcCallback;
 
     LimitedContent m_contentArea;
-};
 
+    std::thread *m_workThread;
+
+    bool m_running;
+};
