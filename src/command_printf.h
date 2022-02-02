@@ -59,13 +59,23 @@ public:
 
     ~CommandPrintf();
 
+    /**
+     * @brief:
+     *
+     * @param serialNo
+     * @param functionName
+     */
     void addCommand(int32_t serialNo, std::string functionName);
 
+    /**
+     * @brief:
+     *
+     * @param functionName
+     */
     void addCommand(std::string functionName);
 
-    /*
-     * brief:
-     * start it at current thread
+    /**
+     * @brief:start it at current thread
      */
     void exec();
 
@@ -97,11 +107,17 @@ public:
 
     void setFunctionCallback(std::function<void(int, CommandPrintf *)> f);
 
-    // void pushBizData(std::string str);
+    bool findCommand(int serialNo);
+
+    void pushBizData(std::string str)
+    {
+        m_contentArea.pushData(str);
+    }
 
     template <typename... Args>
     void pushBizData(const char *fmt, Args... args)
     {
+        //TODO
         char buf[1024] = {0};
         sprintf(buf, fmt, args...);
         m_contentArea.pushData(buf);
@@ -109,6 +125,7 @@ public:
 
     bool matchNumber(std::string str,CommandInput &commandInput);
     bool matchCommand(std::string str,CommandInput &commandInput);
+    void calPage();
 
 private:
     //    std::map<int32_t , std::string> m_funcMap;
@@ -116,7 +133,8 @@ private:
     std::vector<FunctionRecord> m_funcList;
 
     int32_t pageIndex;
-    int32_t pageMax;
+
+    int32_t pageLast;
 
     int32_t m_pageSize;
 

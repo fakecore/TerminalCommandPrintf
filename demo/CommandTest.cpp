@@ -12,9 +12,16 @@ int main()
     CommandPrintf cp;
     cp.addCommand(1,"Hello World");
     cp.addCommand(2,"keep World");
+    cp.addCommand(3,"keep World");
+    cp.addCommand(4,"keep World");
+    cp.addCommand(5,"keep World");
+    cp.addCommand(6,"keep World");
+    cp.addCommand(7,"keep World");
+    cp.addCommand(8,"keep World");
+    cp.addCommand(9,"keep World");
+    cp.addCommand(10,"keep World");
     cp.setFunctionCallback([](int funcNo,CommandPrintf* cp){
         DemoCallback(funcNo,cp);
-        // cp.pushBizData("echo: funcNo:" + std::to_string(funcNo) + "\n");
     });
     cp.execAsync();
     return 0;

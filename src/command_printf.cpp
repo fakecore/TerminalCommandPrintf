@@ -6,8 +6,27 @@
 #include <algorithm>
 #include <regex>
 #include <time_utils.h>
+#include <algorithm>
 
 #include "command_printf.h"
+
+CommandPrintf::~CommandPrintf()
+{
+    m_running = false;
+    if (m_workThread && m_workThread->joinable())
+    {
+        m_workThread->join();
+    }
+}
+
+CommandPrintf::CommandPrintf() : m_contentArea(10)
+{
+    m_pageSize = 5;
+    pageIndex = 0;
+    pageLast = 0;
+    m_running = false;
+    m_workThread = nullptr;
+}
 
 // save to file with command  and async
 void CommandPrintf::execAsync()
@@ -35,7 +54,6 @@ void CommandPrintf::exec()
         content += printCommander();
         printf("%s\n", content.c_str());
         CommandInput commandInput = parserInput(getLineInput());
-        pushBizData("mode:%d\n", commandInput.mode);
         if (commandInput.mode == EXIT_MODE)
         {
         }
@@ -53,12 +71,33 @@ void CommandPrintf::exec()
         }
         else if (commandInput.mode == COMMAND_MODE)
         {
-            pushBizData("commandMode:%s %s\n",commandInput.commandNo.c_str(),commandInput.commandContent.c_str());
+            pushBizData("commandMode:%s %s\n", commandInput.commandNo.c_str(), commandInput.commandContent.c_str());
+            if (commandInput.commandNo == "j")
+            {
+                pageIndex = std::max(pageIndex - 1, 0);
+            }
+            else if (commandInput.commandNo == "k")
+            {
+                pageIndex = std::min(pageIndex + 1, pageLast);
+            }
         }
         else if (commandInput.mode == INIT_MODE)
         {
         }
         printf("\033[2;1H");
+    }
+}
+
+void CommandPrintf::calPage()
+{
+    size_t size = m_funcList.size();
+    if (size % m_pageSize != 0)
+    {
+        pageLast = size / m_pageSize;
+    }
+    else
+    {
+        pageLast = size / m_pageSize - 1;
     }
 }
 
@@ -68,30 +107,29 @@ void CommandPrintf::addCommand(std::string functionName)
 
 void CommandPrintf::addCommand(int32_t serialNo, std::string functionName)
 {
+    if (findCommand(serialNo))
+    {
+        return;
+    }
     FunctionRecord functionRecord;
     functionRecord.serialNo = serialNo;
     functionRecord.functionName = functionName;
     m_funcList.push_back(functionRecord);
     std::sort(m_funcList.begin(), m_funcList.end(), [](const FunctionRecord &l, const FunctionRecord &r)
               { return l.serialNo < r.serialNo; });
+    calPage();
 }
 
-CommandPrintf::~CommandPrintf()
+bool CommandPrintf::findCommand(int serialNo)
 {
-    m_running = false;
-    if (m_workThread && m_workThread->joinable())
+    for (auto &command : m_funcList)
     {
-        m_workThread->join();
+        if (command.serialNo == serialNo)
+        {
+            return true;
+        }
     }
-}
-
-CommandPrintf::CommandPrintf() : m_contentArea(10)
-{
-    m_pageSize = 10;
-    pageIndex = 0;
-    pageMax = 0;
-    m_running = false;
-    m_workThread = nullptr;
+    return false;
 }
 
 std::string CommandPrintf::printFunctions()
@@ -114,8 +152,7 @@ std::string CommandPrintf::printFunctions()
 std::string CommandPrintf::printfPages()
 {
     std::string printContent;
-    printContent += "pages:";
-    for (int i = 0; i <= pageMax; i++)
+    for (int i = 0; i <= pageLast; i++)
     {
         printContent += std::to_string(i) + " ";
     }
@@ -187,11 +224,6 @@ void CommandPrintf::setFunctionCallback(std::function<void(int, CommandPrintf *)
 {
     m_funcCallback = f;
 }
-
-// void CommandPrintf::pushBizData(std::string str)
-// {
-//     m_contentArea.pushData(str);
-// }
 
 bool CommandPrintf::matchNumber(std::string str, CommandInput &commandInput)
 {
