@@ -38,21 +38,24 @@ void CommandPrintf::execAsync()
 void CommandPrintf::exec()
 {
     m_running = true;
+    std::list<std::string> store;
+    // printf("\033[2;1H");
     while (m_running)
     {
         clearScreen();
         std::string content;
-        content += "CommandPrintfTool\n";
-        content += "Author:dylan\n";
-        content += "-----------------------\n";
-        content += printMsgs();
-        content += "-----------------------\n";
-        content += "Function List:\n";
-        content += printFunctions();
-        content += "-----------------------\n";
-        content += printfPages();
-        content += printCommander();
-        printf("%s\n", content.c_str());
+        m_fresh.push_back("CommandPrintfTool\n");
+        m_fresh.push_back("Author:dylan\n");
+        m_fresh.push_back("\n");
+        m_fresh.push_back("-----------------------\n");
+        printMsgs();
+        m_fresh.push_back("-----------------------\n");
+        m_fresh.push_back("Function List:\n");
+        printFunctions();
+        m_fresh.push_back("-----------------------\n");
+        printfPages();
+        printCommander();
+        paintScreen();
         CommandInput commandInput = parserInput(getLineInput());
         if (commandInput.mode == EXIT_MODE)
         {
@@ -79,11 +82,19 @@ void CommandPrintf::exec()
             {
                 pageIndex = std::min(pageIndex + 1, pageLast);
             }
+            else
+            {
+                pushBizData("Unknown command:%s\n", commandInput.commandNo.c_str());
+            }
         }
         else if (commandInput.mode == INIT_MODE)
         {
         }
-        printf("\033[2;1H");
+        // printf("\033[2;1H");
+        // for (int i = 0; i < 20; i++)
+        // {
+        //     printf("\033[1A"); //先回到上一行
+        // }
     }
 }
 
@@ -100,8 +111,15 @@ void CommandPrintf::calPage()
     }
 }
 
-std::string CommandPrintf::addColorsGreen(std::string str){
-    std::string colorPrefix = "\033[32;49;1m" + str + "\033[39;49;0m";
+std::string CommandPrintf::addColorsGreen(std::string str)
+{
+    std::string colorPrefix = "\033[32;49;1m" + str + "\033[0m";
+    return colorPrefix;
+}
+
+std::string CommandPrintf::addColorsRed(std::string str)
+{
+    std::string colorPrefix = "\033[31;49;1m" + str + "\033[0m";
     return colorPrefix;
 }
 
@@ -136,41 +154,40 @@ bool CommandPrintf::findCommand(int serialNo)
     return false;
 }
 
-std::string CommandPrintf::printFunctions()
+void CommandPrintf::printFunctions()
 {
     int32_t functionStartCount = (pageIndex)*m_pageSize;
     int32_t functionEndCount = (pageIndex + 1) * m_pageSize;
     int32_t size = m_funcList.size();
     functionEndCount = functionEndCount < size ? functionEndCount : size;
-    std::string printContent;
     char buf[1024];
     for (int i = functionStartCount; i < functionEndCount; i++)
     {
         auto &ele = m_funcList[i];
         sprintf(buf, "%d.%s\n", ele.serialNo, ele.functionName.c_str());
-        printContent += std::string(buf);
+        m_fresh.push_back(std::string(buf));
     }
-    return printContent;
 }
 
-std::string CommandPrintf::printfPages()
+void CommandPrintf::printfPages()
 {
-    std::string printContent;
     for (int i = 0; i <= pageLast; i++)
     {
-        if(pageIndex == i){
-            printContent += addColorsGreen(std::to_string(i)) + " ";
-        }else{
-            printContent += std::to_string(i) + " ";
+        if (pageIndex == i)
+        {
+            m_fresh.push_back(addColorsGreen(std::to_string(i)) + " ");
+        }
+        else
+        {
+            m_fresh.push_back(std::to_string(i) + " ");
         }
     }
-    printContent += "\n";
-    return printContent;
+    m_fresh.push_back("\n");
 }
 
-std::string CommandPrintf::printCommander()
+void CommandPrintf::printCommander()
 {
-    return "Prev(j) Next(k)\n";
+    m_fresh.push_back("Prev(j) Next(k)\n");
 }
 
 std::string CommandPrintf::getLineInput()
@@ -201,16 +218,15 @@ CommandInput CommandPrintf::parserInput(std::string content)
 }
 
 // print height 20
-std::string CommandPrintf::printMsgs()
+void CommandPrintf::printMsgs()
 {
-    std::string content;
-    content += m_contentArea.genContent();
+    auto data = m_contentArea.genContentList();
+    m_fresh.insert(m_fresh.end(), data.begin(), data.end());
     int32_t padSize = m_contentArea.getLimitedSize() - m_contentArea.getAvailableLineSize();
     for (int i = 0; i < padSize; i++)
     {
-        content += "\n";
+        m_fresh.push_back("\n");
     }
-    return content;
 }
 
 std::string CommandPrintf::getTimeStamp()
@@ -221,11 +237,12 @@ std::string CommandPrintf::getTimeStamp()
 
 void CommandPrintf::clearScreen()
 {
-    for (int i = 0; i < 80; i++)
+    for (int i = 0; i < m_fresh.size(); i++)
     {
-        printf("\n");
+        printf("\033[K");  //清除该行
+        printf("\033[1A");
     }
-    printf("\033[2;1H");
+    m_fresh.clear();
 }
 
 void CommandPrintf::setFunctionCallback(std::function<void(int, CommandPrintf *)> f)
@@ -263,4 +280,14 @@ bool CommandPrintf::matchCommand(std::string str, CommandInput &commandInput)
         commandInput.commandContent = baseMatch[2];
     }
     return true;
+}
+
+void CommandPrintf::paintScreen()
+{
+    std::string content;
+    for (auto &c : m_fresh)
+    {
+        content += c;
+    }
+    printf("%s\n", content.c_str());
 }

@@ -3,9 +3,11 @@
 //
 
 #include "command_printf.h"
+#include "unistd.h"
 void DemoCallback(int funcNo,CommandPrintf *cp){
-    cp->pushBizData(cp->addColorsGreen("tttt\n"));
-    // cp->pushBizData("funcNo: %d called test\n",funcNo);
+    cp->pushBizData(cp->addColorsGreen(cp->genFmtMsg("funcNo: %d called test\n",funcNo)));
+    cp->pushBizData(cp->addColorsRed(cp->genFmtMsg("error:test\n")));
+    // cp->pushBizData();
 }
 
 int main()

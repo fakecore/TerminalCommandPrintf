@@ -6,26 +6,36 @@
 
 LimitedContent::LimitedContent(int mLimitedSize) : m_limitedSize(mLimitedSize) {}
 
-void LimitedContent::pushData(std::string str) {
-    if(m_data.size() >= m_limitedSize){
+void LimitedContent::pushData(std::string str)
+{
+    if (m_data.size() >= m_limitedSize)
+    {
         m_data.pop_front();
     }
     m_data.push_back(str);
 }
 
-
-std::string LimitedContent::genContent() {
+std::string LimitedContent::genContent()
+{
     std::string content;
-    for(auto &str:m_data){
+    for (auto &str : m_data)
+    {
         content += str;
     }
     return content;
 }
 
-int32_t LimitedContent::getAvailableLineSize() {
+std::list<std::string> LimitedContent::genContentList()
+{
+    return m_data;
+}
+
+int32_t LimitedContent::getAvailableLineSize()
+{
     return m_data.size();
 }
 
-int32_t LimitedContent::getLimitedSize() {
+int32_t LimitedContent::getLimitedSize()
+{
     return m_limitedSize;
 }

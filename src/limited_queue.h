@@ -15,6 +15,7 @@ public:
     void pushData(std::string);
 
     std::string genContent();
+    std::list<std::string> genContentList();
 
     int32_t getAvailableLineSize();
     int32_t getLimitedSize();

@@ -85,11 +85,11 @@ public:
      */
     void execAsync();
 
-    std::string printFunctions();
+    void printFunctions();
 
-    std::string printfPages();
+    void printfPages();
 
-    std::string printCommander();
+    void printCommander();
 
     std::string getLineInput();
 
@@ -97,7 +97,10 @@ public:
 
     void doExit();
 
-    std::string printMsgs();
+    void printMsgs();
+
+    void paintScreen();
+
 
     void addBizContent(std::string str);
 
@@ -115,12 +118,18 @@ public:
     }
 
     template <typename... Args>
-    void pushBizData(const char *fmt, Args... args)
+    std::string genFmtMsg(const char *fmt, Args... args)
     {
         //TODO
         char buf[1024] = {0};
         sprintf(buf, fmt, args...);
-        m_contentArea.pushData(buf);
+        return std::string(buf);
+    }
+
+    template <typename... Args>
+    void pushBizData(const char *fmt, Args... args)
+    {
+        m_contentArea.pushData(genFmtMsg(fmt,args...));
     }
 
     bool matchNumber(std::string str,CommandInput &commandInput);
@@ -128,6 +137,7 @@ public:
     void calPage();
 
     std::string addColorsGreen(std::string str);
+    std::string addColorsRed(std::string str);
 private:
     //    std::map<int32_t , std::string> m_funcMap;
     // sorted array
@@ -146,4 +156,6 @@ private:
     std::thread *m_workThread;
 
     bool m_running;
+
+    std::list<std::string> m_fresh;
 };
