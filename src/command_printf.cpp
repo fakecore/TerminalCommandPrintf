@@ -47,7 +47,7 @@ void CommandPrintf::exec()
         content += "-----------------------\n";
         content += printMsgs();
         content += "-----------------------\n";
-        content += "Function List:\n\n";
+        content += "Function List:\n";
         content += printFunctions();
         content += "-----------------------\n";
         content += printfPages();
@@ -71,7 +71,6 @@ void CommandPrintf::exec()
         }
         else if (commandInput.mode == COMMAND_MODE)
         {
-            pushBizData("commandMode:%s %s\n", commandInput.commandNo.c_str(), commandInput.commandContent.c_str());
             if (commandInput.commandNo == "j")
             {
                 pageIndex = std::max(pageIndex - 1, 0);
@@ -99,6 +98,11 @@ void CommandPrintf::calPage()
     {
         pageLast = size / m_pageSize - 1;
     }
+}
+
+std::string CommandPrintf::addColorsGreen(std::string str){
+    std::string colorPrefix = "\033[32;49;1m" + str + "\033[39;49;0m";
+    return colorPrefix;
 }
 
 void CommandPrintf::addCommand(std::string functionName)
@@ -154,7 +158,11 @@ std::string CommandPrintf::printfPages()
     std::string printContent;
     for (int i = 0; i <= pageLast; i++)
     {
-        printContent += std::to_string(i) + " ";
+        if(pageIndex == i){
+            printContent += addColorsGreen(std::to_string(i)) + " ";
+        }else{
+            printContent += std::to_string(i) + " ";
+        }
     }
     printContent += "\n";
     return printContent;

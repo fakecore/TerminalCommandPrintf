@@ -4,7 +4,8 @@
 
 #include "command_printf.h"
 void DemoCallback(int funcNo,CommandPrintf *cp){
-    cp->pushBizData("funcNo: %d called test\n",funcNo);
+    cp->pushBizData(cp->addColorsGreen("tttt\n"));
+    // cp->pushBizData("funcNo: %d called test\n",funcNo);
 }
 
 int main()

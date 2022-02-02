@@ -127,6 +127,7 @@ public:
     bool matchCommand(std::string str,CommandInput &commandInput);
     void calPage();
 
+    std::string addColorsGreen(std::string str);
 private:
     //    std::map<int32_t , std::string> m_funcMap;
     // sorted array
