@@ -13,7 +13,7 @@
 void CommandPrintf::execAsync()
 {
     // TODO start a new thread
-    m_workThread = new std::thread(std::bind(&CommandPrintf::exec,this));
+    m_workThread = new std::thread(std::bind(&CommandPrintf::exec, this));
 }
 
 void CommandPrintf::exec()
@@ -35,6 +35,7 @@ void CommandPrintf::exec()
         content += printCommander();
         printf("%s\n", content.c_str());
         CommandInput commandInput = parserInput(getLineInput());
+        pushBizData("mode:%d\n", commandInput.mode);
         if (commandInput.mode == EXIT_MODE)
         {
         }
@@ -50,8 +51,9 @@ void CommandPrintf::exec()
                 m_funcCallback(commandInput.functionNo, this);
             }
         }
-        else if (commandInput.mode == ACTION_MODE)
+        else if (commandInput.mode == COMMAND_MODE)
         {
+            pushBizData("commandMode:%s %s\n",commandInput.commandNo.c_str(),commandInput.commandContent.c_str());
         }
         else if (commandInput.mode == INIT_MODE)
         {
@@ -77,7 +79,8 @@ void CommandPrintf::addCommand(int32_t serialNo, std::string functionName)
 CommandPrintf::~CommandPrintf()
 {
     m_running = false;
-    if(m_workThread && m_workThread->joinable()){
+    if (m_workThread && m_workThread->joinable())
+    {
         m_workThread->join();
     }
 }
@@ -142,13 +145,17 @@ CommandInput CommandPrintf::parserInput(std::string content)
     }
     else
     {
-        commandInput.mode = FUNCTION_MODE;
-        commandInput.functionNo = std::stoi(content);
+        if (matchNumber(content, commandInput))
+        {
+        }
+        else if (matchCommand(content, commandInput))
+        {
+        }
     }
     return commandInput;
 }
 
-//print height 20
+// print height 20
 std::string CommandPrintf::printMsgs()
 {
     std::string content;
@@ -186,11 +193,13 @@ void CommandPrintf::setFunctionCallback(std::function<void(int, CommandPrintf *)
 //     m_contentArea.pushData(str);
 // }
 
-bool CommandPrintf::matchNumber(std::string str,CommandInput &commandInput){
-    std::regex baseRegex("^\\s+[0-9]+\\s+");
+bool CommandPrintf::matchNumber(std::string str, CommandInput &commandInput)
+{
+    std::regex baseRegex("^\\s*[0-9]+\\s*");
     std::smatch baseMatch;
     bool state = std::regex_match(str, baseMatch, baseRegex);
-    if(!state || baseMatch.size() != 1){
+    if (!state || baseMatch.size() != 1)
+    {
         return false;
     }
     commandInput.mode = FUNCTION_MODE;
@@ -198,14 +207,20 @@ bool CommandPrintf::matchNumber(std::string str,CommandInput &commandInput){
     return true;
 }
 
-bool CommandPrintf::matchCommand(std::string str,CommandInput &commandInput){
-    std::regex baseRegex("^\\s+[0-9]+\\s+");
+bool CommandPrintf::matchCommand(std::string str, CommandInput &commandInput)
+{
+    std::regex baseRegex("^\\s*([a-zA-Z])\\s*([0-9]*)\\s*");
     std::smatch baseMatch;
     bool state = std::regex_match(str, baseMatch, baseRegex);
-    if(!state || baseMatch.size() != 1){
+    if (!state && baseMatch.size() == 1)
+    {
         return false;
     }
-    commandInput.mode = FUNCTION_MODE;
-    commandInput.functionNo = std::stoi(baseMatch[0]);
+    commandInput.mode = COMMAND_MODE;
+    commandInput.commandNo = baseMatch[1];
+    if (baseMatch.size() == 3)
+    {
+        commandInput.commandContent = baseMatch[2];
+    }
     return true;
 }

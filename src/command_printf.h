@@ -13,10 +13,9 @@
 #include "limited_queue.h"
 
 #define INIT_MODE 0
-#define ACTION_MODE 2
 #define FUNCTION_MODE 1
-#define ACTION_MODE 2
-#define EXIT_MODE 2
+#define COMMAND_MODE 2
+#define EXIT_MODE 3
 
 struct FunctionRecord
 {
@@ -32,6 +31,8 @@ struct CommandInput
     }
     int mode;
     int functionNo; //-1 return 0 do nothing
+    std::string commandNo;
+    std::string commandContent;
 };
 
 /*
