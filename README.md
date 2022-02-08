@@ -49,7 +49,7 @@ int main()
     cp.addCommand(2,"keep World");
     cp.setFunctionCallback([&](int funcNo){
         DemoCallback(funcNo);
-        cp.pushBizData("echo: funcNo:%d\n");
+        cp.pushContentArea("echo: funcNo:%d\n");
     });
     cp.execAsync();
     return 0;
@@ -63,4 +63,5 @@ int main()
 - [ ] 支持写文件
 - [ ] 性能优化
 - [x] 命令解析支持
-- [ ] 终端涂色
+- [x] 终端涂色
+- [ ] Content Area 支持回滚显示

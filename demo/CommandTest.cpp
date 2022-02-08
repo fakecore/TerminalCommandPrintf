@@ -6,9 +6,9 @@
 #include "unistd.h"
 
 void DemoCallback(int funcNo, CommandPrintf *cp) {
-    cp->pushBizData(cp->addColorsGreen(cp->genFmtMsg("funcNo: %d called test\n", funcNo)));
-    cp->pushBizData(cp->addColorsRed(cp->genFmtMsg("error:test\n")));
-    // cp->pushBizData();
+    cp->pushContentArea(cp->addColorsGreen(cp->genFmtMsg("funcNo: %d called test\n", funcNo)));
+    cp->pushContentArea(cp->addColorsRed(cp->genFmtMsg("error:test\n")));
+    // cp->pushContentArea();
 }
 
 int main() {

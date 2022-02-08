@@ -38,11 +38,14 @@ struct CommandInput {
     std::string commandContent;
 };
 
+/**
+ * inner class
+ */
 class LimitedContent {
 public:
     LimitedContent() = default;
 
-    LimitedContent(int32_t mLimitedSize) : m_limitedSize(mLimitedSize) {};
+    LimitedContent(int32_t mLimitedSize = 32) : m_limitedSize(mLimitedSize) {};
 
     void pushData(std::string str) {
         if (m_data.size() >= m_limitedSize) {
@@ -73,30 +76,27 @@ public:
 
 private:
     std::list<std::string> m_data;
-    uint32_t m_limitedSize = 32;
+    uint32_t m_limitedSize;
 };
 
 /*
- * demo: height:20 auto complete
- * output
- * -----------------------  0
- * Function:xxx             1
- * hello world
- *
- * -----------------------  20
- * Function List            21
- * -----------------------  22
- * 1. Hello World!
- * 2. Copy That
- * -----------------------  30
- * 0 1 2...10               31
- * prev (h) next(l)         32
+ * output example
+ * output panel struct
+ * -----------------------
+ * title
+ * -----------------------
+ * Content Area
+ * -----------------------
+ * Function List
+ * -----------------------
+ * <0 1 2...N>
+ * prev (h) next(l)
  *
  */
+
 class CommandPrintf {
 public:
     CommandPrintf() : m_contentArea(30) {
-
         m_pageSize = 10;
         pageIndex = 0;
         pageLast = 0;
@@ -135,7 +135,7 @@ public:
                 } else if (commandInput.commandNo == "k") {
                     pageIndex = std::min(pageIndex + 1, pageLast);
                 } else {
-                    pushBizData("Unknown command:%s\n", commandInput.commandNo.c_str());
+                    pushContentArea("Unknown command:%s\n", commandInput.commandNo.c_str());
                 }
             } else if (commandInput.mode == INIT_MODE) {
             }
@@ -151,8 +151,7 @@ public:
         m_workThread = new std::thread(std::bind(&CommandPrintf::exec, this));
     }
 
-// print height 20
-    void printMsgs() {
+    void printContentArea() {
         auto data = m_contentArea.genContentList();
         m_fresh.insert(m_fresh.end(), data.begin(), data.end());
         int32_t padSize = m_contentArea.getLimitedSize() - m_contentArea.getAvailableLineSize();
@@ -165,7 +164,7 @@ public:
         m_fresh.insert(m_fresh.end(), m_titleStore.begin(), m_titleStore.end());
     }
 
-    void printFunctions() {
+    void printFunctionList() {
         int32_t functionStartCount = (pageIndex) * m_pageSize;
         int32_t functionEndCount = (pageIndex + 1) * m_pageSize;
         int32_t size = m_funcList.size();
@@ -199,10 +198,10 @@ public:
     void prePaint() {
         printTitle();
         m_fresh.push_back("-----------------------\n");
-        printMsgs();
+        printContentArea();
         m_fresh.push_back("-----------------------\n");
         m_fresh.push_back("Function List:\n");
-        printFunctions();
+        printFunctionList();
         m_fresh.push_back("-----------------------\n");
         printfPages();
         printCommander();
@@ -233,13 +232,13 @@ public:
 
     void doExit();
 
-    void pushBizData(std::string str) {
+    void pushContentArea(std::string str) {
         m_contentArea.pushData(str);
         repaint();
     }
 
     template<typename... Args>
-    void pushBizData(const char *fmt, Args... args) {
+    void pushContentArea(const char *fmt, Args... args) {
         m_contentArea.pushData(genFmtMsg(fmt, args...));
         repaint();
     }
@@ -252,8 +251,9 @@ public:
         return std::string(buf);
     }
 
-    void addCommand(std::string functionName) {
-    }
+    //TODO implement
+//    void addCommand(std::string functionName) {
+//    }
 
     void addCommand(int32_t serialNo, std::string functionName) {
         if (findCommand(serialNo)) {
