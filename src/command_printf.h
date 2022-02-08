@@ -81,7 +81,7 @@ private:
 
 /*
  * output example
- * output panel struct
+ * output panel layout
  * -----------------------
  * title
  * -----------------------

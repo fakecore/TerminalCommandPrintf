@@ -16,21 +16,17 @@ git clone https://github.com/planetPocket/TerminalCommandPrintf
 
 ```c++
 /*
- * demo: height:20 auto complete with blank line
- * output
- * -----------------------  0
- * Function:xxx             1
- * hello world
- *
- * -----------------------  20
- * Function List            21
- * -----------------------  22
- * 1. Hello World!
- * 2. Copy That
- * -----------------------  30
- * 0 1 2...10               31
- * prev (h) next(l)         32
- *
+ * output example
+ * output panel layout
+ * -----------------------
+ * title
+ * -----------------------
+ * Content Area
+ * -----------------------
+ * Function List
+ * -----------------------
+ * <0 1 2...N>
+ * prev (h) next(l)
  */
 ```
 
